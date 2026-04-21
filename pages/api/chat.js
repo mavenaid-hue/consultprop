@@ -62,25 +62,22 @@ const client = new Anthropic({
 });
 
 function sanitizeMessages(messages) {
-  // Remove empty content and strip to only role + content
   const clean = messages
     .filter(m => m.role === 'user' || m.role === 'assistant')
     .filter(m => typeof m.content === 'string' && m.content.trim() !== '')
     .map(m => ({ role: m.role, content: m.content }));
 
-  // Keep last 10
   const trimmed = clean.slice(-10);
 
-  // Enforce strict alternation — drop leading assistants, then zip-dedupe
   const alternated = [];
   for (const msg of trimmed) {
     if (alternated.length === 0) {
-      if (msg.role !== 'user') continue; // must start with user
+      if (msg.role !== 'user') continue;
       alternated.push(msg);
     } else {
       const lastRole = alternated[alternated.length - 1].role;
       if (msg.role === lastRole) {
-        alternated[alternated.length - 1] = msg; // replace duplicate with latest
+        alternated[alternated.length - 1] = msg;
       } else {
         alternated.push(msg);
       }
@@ -91,6 +88,14 @@ function sanitizeMessages(messages) {
 }
 
 export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -107,8 +112,6 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: 'No valid messages to send.' });
   }
 
-  // Prepend journey context to the first user message so the AI never forgets
-  // what it learned even when old messages are trimmed off.
   const hasContext = journeyLog && Object.values(journeyLog).some(
     v => v !== null && !(Array.isArray(v) && v.length === 0)
   );
@@ -130,21 +133,21 @@ export default async function handler(req, res) {
     const fullReply = response.content[0].text;
 
     const logMatch = fullReply.match(/<journey_log>([\s\S]*?)<\/journey_log>/);
-    let journeyLog = null;
+    let updatedLog = null;
     let cleanReply = fullReply.replace(/<journey_log>[\s\S]*?<\/journey_log>/, '').trim();
 
     if (logMatch) {
-      try { journeyLog = JSON.parse(logMatch[1].trim()); } catch (e) {}
+      try { updatedLog = JSON.parse(logMatch[1].trim()); } catch (e) {}
     }
 
-    if (journeyLog && sessionId) {
+    if (updatedLog && sessionId) {
       const { error: dbError } = await supabase
         .from('journey_logs')
-        .upsert({ session_id: sessionId, ...journeyLog, updated_at: new Date().toISOString() }, { onConflict: 'session_id' });
+        .upsert({ session_id: sessionId, ...updatedLog, updated_at: new Date().toISOString() }, { onConflict: 'session_id' });
       if (dbError) console.error('[chat] Supabase upsert error:', dbError.message);
     }
 
-    return res.status(200).json({ reply: cleanReply, journeyLog });
+    return res.status(200).json({ reply: cleanReply, journeyLog: updatedLog });
 
   } catch (error) {
     console.error('[chat] Anthropic error:', JSON.stringify(error?.error ?? error, null, 2));
