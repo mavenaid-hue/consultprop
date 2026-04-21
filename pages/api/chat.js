@@ -136,7 +136,14 @@ export default async function handler(req, res) {
 
     const logMatch = fullReply.match(/<journey_log>([\s\S]*?)<\/journey_log>/);
     let updatedLog = null;
-    let cleanReply = fullReply.replace(/<journey_log>[\s\S]*?<\/journey_log>/, '').trim();
+
+    let cleanReply = fullReply;
+    const journeyLogMatch = fullReply.match(/<journey_log>[\s\S]*?<\/journey_log>/);
+    if (journeyLogMatch) {
+      cleanReply = fullReply.replace(journeyLogMatch[0], '').trim();
+    }
+    cleanReply = cleanReply.replace(/<journey_log>[\s\S]*$/, '').trim();
+    cleanReply = cleanReply.replace(/<\/journey_log>/g, '').trim();
 
     if (logMatch) {
       try { updatedLog = JSON.parse(logMatch[1].trim()); } catch (e) {}
