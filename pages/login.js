@@ -12,7 +12,7 @@ export default function Login() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        supabase.from('profiles').select('role').eq('id', session.user.id).single()
+        supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle()
           .then(({ data }) => {
             if (data) router.push(data.role === 'seller' ? '/seller' : '/buyer');
             else setChecking(false);

@@ -31,7 +31,7 @@ export default function AuthCallback() {
           .from('profiles')
           .select('role')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
         if (!existing) {
           setStatus('Setting up your profile…');
