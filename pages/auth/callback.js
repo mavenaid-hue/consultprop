@@ -9,12 +9,25 @@ export default function AuthCallback() {
   const [status, setStatus] = useState('Completing sign in...');
 
   useEffect(() => {
-    const handleCallback = async () => {
+    let isActive = true;
+    let timeoutId;
+    let authSubscription;
+
+    async function finishSignIn(session, role) {
+      if (!session?.user || !isActive) return;
+
+      await persistRoleMetadata(supabase, session.user, role);
+      await syncProfile(supabase, session.user, role);
+      localStorage.removeItem('consultprop_role');
+
+      router.replace(role === 'seller' ? '/seller' : '/buyer');
+    }
+
+    async function handleCallback() {
       try {
         const searchParams = new URLSearchParams(window.location.search);
         const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
         const role = normalizeRole(localStorage.getItem('consultprop_role') || 'buyer');
-        const authCode = searchParams.get('code');
         const errorDescription =
           searchParams.get('error_description') ||
           searchParams.get('error') ||
@@ -25,66 +38,48 @@ export default function AuthCallback() {
           throw new Error(errorDescription);
         }
 
-        if (authCode) {
-          setStatus('Finishing secure sign in...');
-
-          const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
-          if (error) throw error;
-
-          if (data.session) {
-            await persistRoleMetadata(supabase, data.session.user, role);
-            await syncProfile(supabase, data.session.user, role);
-
-            localStorage.removeItem('consultprop_role');
-            router.replace(role === 'seller' ? '/seller' : '/buyer');
-            return;
-          }
-        }
-
         const {
           data: { session },
         } = await supabase.auth.getSession();
 
         if (session) {
-          await persistRoleMetadata(supabase, session.user, role);
-          await syncProfile(supabase, session.user, role);
-
-          localStorage.removeItem('consultprop_role');
-          router.replace(role === 'seller' ? '/seller' : '/buyer');
+          await finishSignIn(session, role);
           return;
         }
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
 
-        if (accessToken && refreshToken) {
-          setStatus('Restoring your session...');
+        setStatus('Waiting for secure sign in to finish...');
 
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken,
-          });
-          if (error) throw error;
-
-          if (data.session) {
-            await persistRoleMetadata(supabase, data.session.user, role);
-            await syncProfile(supabase, data.session.user, role);
-
-            localStorage.removeItem('consultprop_role');
-            router.replace(role === 'seller' ? '/seller' : '/buyer');
-            return;
+        const {
+          data: { subscription },
+        } = supabase.auth.onAuthStateChange(async (event, nextSession) => {
+          if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && nextSession) {
+            clearTimeout(timeoutId);
+            subscription.unsubscribe();
+            await finishSignIn(nextSession, role);
           }
-        }
+        });
 
-        setStatus('Sign in failed. Redirecting...');
-        setTimeout(() => router.push('/'), 2000);
+        authSubscription = subscription;
+
+        timeoutId = setTimeout(() => {
+          if (!isActive) return;
+          authSubscription?.unsubscribe();
+          setStatus('Sign in failed. No session was established.');
+        }, 10000);
       } catch (err) {
         console.error('Callback error:', err);
         setStatus(`Sign in failed: ${err.message || 'Something went wrong.'}`);
       }
-    };
+    }
 
     handleCallback();
-  }, []);
+
+    return () => {
+      isActive = false;
+      clearTimeout(timeoutId);
+      authSubscription?.unsubscribe();
+    };
+  }, [router]);
 
   return <LoadingScreen message={status} />;
 }
