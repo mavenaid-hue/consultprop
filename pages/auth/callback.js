@@ -14,52 +14,62 @@ export default function AuthCallback() {
 
     const handleCallback = async () => {
       try {
-        // PKCE flow: exchange the code for a session
-        const { code, error: oauthError } = router.query;
+        const { code, error: urlError, error_description } = router.query;
 
-        if (oauthError) {
-          throw new Error(`OAuth error: ${router.query.error_description || oauthError}`);
+        // Step 1 — surface any OAuth-level error from the redirect URL
+        if (urlError) {
+          throw new Error(error_description || urlError);
         }
+
+        // Step 2 — exchange the code for a session
+        let session = null;
 
         if (code) {
           setStatus('Verifying with Google…');
-          const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(String(code));
-          if (exchangeError) throw exchangeError;
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(String(code));
+          if (!exchangeError && data?.session) {
+            session = data.session;
+          }
         }
 
-        // Confirm we have a valid session (works for both PKCE and implicit flow)
-        setStatus('Loading your account…');
-        const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        // Step 3 — fall back to getSession (covers implicit flow / already-exchanged code)
+        if (!session) {
+          setStatus('Loading your account…');
+          const { data: { session: existing } } = await supabase.auth.getSession();
+          session = existing;
+        }
 
-        if (sessionError) throw sessionError;
-        if (!session) throw new Error('No session established after sign-in. Please try again.');
+        // Step 4 — wait 2 s and try one final time if still nothing
+        if (!session) {
+          setStatus('Finishing up…');
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const { data: { session: retried } } = await supabase.auth.getSession();
+          session = retried;
+        }
 
-        // Read role saved before the OAuth redirect
+        if (!session) {
+          throw new Error('No session established after sign-in. Please try again.');
+        }
+
+        const user = session.user;
+
+        // Step 5 — read role and upsert profile
         const role = localStorage.getItem('consultprop_role') || 'buyer';
         localStorage.removeItem('consultprop_role');
 
-        // Check if this user already has a profile
-        const { data: existing, error: profileReadError } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', session.user.id)
-          .maybeSingle();
+        setStatus('Setting up your account…');
+        const { error: upsertError } = await supabase.from('profiles').upsert({
+          id: user.id,
+          email: user.email,
+          name: user.user_metadata?.full_name || '',
+          role,
+        });
 
-        if (profileReadError) throw profileReadError;
+        if (upsertError) throw upsertError;
 
-        if (!existing) {
-          setStatus('Setting up your account…');
-          const { error: insertError } = await supabase.from('profiles').insert({
-            id: session.user.id,
-            role,
-            name: session.user.user_metadata?.full_name || '',
-            email: session.user.email,
-          });
-          if (insertError) throw insertError;
-          router.replace(role === 'seller' ? '/seller' : '/buyer');
-        } else {
-          router.replace(existing.role === 'seller' ? '/seller' : '/buyer');
-        }
+        // Step 6 — redirect
+        router.replace(role === 'seller' ? '/seller' : '/buyer');
+
       } catch (err) {
         console.error('[callback]', err);
         setError(err.message || 'Something went wrong during sign-in.');
@@ -73,8 +83,8 @@ export default function AuthCallback() {
     return (
       <div style={{ minHeight: '100vh', background: '#0F1115', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', sans-serif", padding: '2rem', gap: '1.5rem', textAlign: 'center' }}>
         <div style={{ width: 40, height: 40, borderRadius: 12, ...gradientBg, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: '#fff' }}>C</div>
-        <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,100,100,0.3)', borderRadius: 16, padding: '1.5rem 2rem', maxWidth: 400 }}>
-          <p style={{ color: '#E6EAF2', fontSize: 15, fontWeight: 500, marginBottom: '0.5rem' }}>Sign-in failed</p>
+        <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,100,100,0.25)', borderRadius: 16, padding: '1.5rem 2rem', maxWidth: 420 }}>
+          <p style={{ color: '#E6EAF2', fontSize: 15, fontWeight: 600, marginBottom: '0.5rem' }}>Sign-in failed</p>
           <p style={{ color: '#9AA3B2', fontSize: 13, lineHeight: 1.6, marginBottom: '1.25rem' }}>{error}</p>
           <a href="/" style={{ display: 'inline-block', padding: '0.6rem 1.25rem', borderRadius: 50, fontSize: 13, fontWeight: 500, color: '#fff', textDecoration: 'none', ...gradientBg }}>
             Back to home
