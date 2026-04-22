@@ -38,7 +38,7 @@ export default function Seller() {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { router.push('/login?role=seller'); return; }
-      const { data: profile } = await supabase.from('profiles').select('role,name').eq('id', session.user.id).single();
+      const { data: profile } = await supabase.from('profiles').select('role,name').eq('id', session.user.id).maybeSingle();
       if (!profile || profile.role !== 'seller') { router.push('/login?role=seller'); return; }
       setUser({ ...session.user, name: profile.name });
       setAuthChecked(true);

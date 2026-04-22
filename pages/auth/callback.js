@@ -26,7 +26,6 @@ export default function AuthCallback() {
 
         const role = localStorage.getItem('consultprop_role') || 'buyer';
 
-        // Check if profile already exists
         const { data: existing } = await supabase
           .from('profiles')
           .select('role')
@@ -57,9 +56,9 @@ export default function AuthCallback() {
   }, [router.isReady]);
 
   return (
-    <div style={{ minHeight: '100vh', background: '#0D1B2A', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: "'DM Sans', sans-serif" }}>
-      <div style={{ width: 40, height: 40, borderRadius: 10, background: '#E8A020', marginBottom: '1rem' }} />
-      <div style={{ color: 'rgba(240,237,232,0.5)', fontSize: 14 }}>{status}</div>
+    <div style={{ minHeight: '100vh', background: '#0F1115', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', fontFamily: "'Inter', sans-serif", gap: '1rem' }}>
+      <div style={{ width: 40, height: 40, borderRadius: 12, background: 'linear-gradient(135deg, #2F6BFF, #7B3FF2)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 20, fontWeight: 700, color: '#fff' }}>C</div>
+      <div style={{ color: '#9AA3B2', fontSize: 14 }}>{status}</div>
     </div>
   );
 }

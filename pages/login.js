@@ -16,6 +16,7 @@ export default function Login() {
   const [checking, setChecking] = useState(true);
 
   useEffect(() => {
+    if (!router.isReady) return;
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         supabase.from('profiles').select('role').eq('id', session.user.id).maybeSingle()
@@ -27,7 +28,7 @@ export default function Login() {
         setChecking(false);
       }
     });
-  }, []);
+  }, [router.isReady]);
 
   async function handleGoogleLogin() {
     if (!role) return;
