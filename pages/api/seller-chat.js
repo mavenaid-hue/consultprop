@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { createClient } from '@supabase/supabase-js';
+import { supabasePublicKey, supabaseUrl } from '../../lib/supabase-config';
 
 const SELLER_SYSTEM_PROMPT = `You are ConsultProp Seller Assistant — an AI that helps property sellers create listings through a warm, efficient conversation.
 
@@ -70,8 +71,8 @@ export default async function handler(req, res) {
   const token = authHeader?.replace('Bearer ', '');
 
   const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    supabaseUrl,
+    supabasePublicKey,
     token ? { global: { headers: { Authorization: `Bearer ${token}` } } } : {}
   );
 
