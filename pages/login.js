@@ -1,7 +1,13 @@
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { useEffect, useState } from 'react';
 import supabase from '../lib/supabase';
+
+const gradientText = {
+  background: 'linear-gradient(135deg, #2F6BFF, #7B3FF2)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+};
 
 export default function Login() {
   const router = useRouter();
@@ -37,52 +43,59 @@ export default function Login() {
   const icon = role === 'seller' ? '📋' : '🏠';
 
   if (checking) return (
-    <div style={{ minHeight: '100vh', background: '#0D1B2A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: 'rgba(240,237,232,0.4)', fontSize: 14 }}>Loading…</div>
+    <div style={{ minHeight: '100vh', background: '#0F1115', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ color: '#6B7280', fontSize: 14, fontFamily: "'Inter', sans-serif" }}>Loading…</div>
     </div>
   );
 
   return (
     <>
-      <Head>
-        <title>Sign in — ConsultProp</title>
-        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-      </Head>
-      <div style={{ minHeight: '100vh', background: '#0D1B2A', fontFamily: "'DM Sans', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
+      <div style={{ minHeight: '100vh', background: '#0F1115', fontFamily: "'Inter', sans-serif", display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
         <div style={{ width: '100%', maxWidth: 380, textAlign: 'center' }}>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, justifyContent: 'center', marginBottom: '2rem' }}>
-            <div style={{ width: 38, height: 38, borderRadius: 10, background: '#E8A020', color: '#0A1520', fontFamily: "'DM Serif Display', serif", fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>C</div>
-            <span style={{ fontSize: 20, fontWeight: 500, color: '#F0EDE8', letterSpacing: '-0.02em' }}>ConsultProp</span>
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'center', gap: 0, marginBottom: '2rem' }}>
+            <span style={{ fontSize: 24, fontWeight: 600, color: '#E6EAF2', letterSpacing: '-0.03em' }}>consult</span>
+            <span style={{ fontSize: 24, fontWeight: 600, letterSpacing: '-0.03em', ...gradientText }}>prop</span>
+            <span style={{ fontSize: 24, fontWeight: 600, color: '#6B7280', letterSpacing: '-0.03em' }}>.ai</span>
           </div>
 
-          <div style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 16, padding: '2rem' }}>
+          {/* Glass card */}
+          <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 16, padding: '2rem' }}>
             <div style={{ fontSize: 28, marginBottom: '0.75rem' }}>{icon}</div>
-            <h1 style={{ fontSize: 20, fontWeight: 500, color: '#F0EDE8', marginBottom: '0.5rem' }}>
+            <h1 style={{ fontSize: 20, fontWeight: 600, color: '#E6EAF2', marginBottom: '0.5rem' }}>
               Sign in as a {label}
             </h1>
-            <p style={{ fontSize: 13, color: 'rgba(240,237,232,0.45)', marginBottom: '1.75rem', lineHeight: 1.6 }}>
+            <p style={{ fontSize: 13, color: '#9AA3B2', marginBottom: '1.75rem', lineHeight: 1.6 }}>
               {role === 'seller'
                 ? 'List your property through a quick conversation.'
                 : 'Get honest, unbiased advice on your property search.'}
             </p>
 
+            {/* Glass Google button */}
             <button
               onClick={handleGoogleLogin}
               disabled={loading || !role}
-              style={{ width: '100%', padding: '0.85rem 1.5rem', background: loading ? 'rgba(232,160,32,0.5)' : '#E8A020', color: '#0A1520', border: 'none', borderRadius: 12, fontSize: 14, fontWeight: 500, fontFamily: "'DM Sans', sans-serif", cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10 }}
+              style={{ width: '100%', padding: '0.85rem 1.5rem', background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 12, fontSize: 14, fontWeight: 500, fontFamily: "'Inter', sans-serif", color: '#E6EAF2', cursor: loading ? 'not-allowed' : 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, transition: 'background 300ms ease, box-shadow 300ms ease, transform 300ms ease', opacity: loading ? 0.6 : 1 }}
+              onMouseEnter={e => { if (!loading) { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.boxShadow = '0 0 20px rgba(47,107,255,0.25)'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#0A1520"/>
-                <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#0A1520"/>
-                <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#0A1520"/>
-                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#0A1520"/>
+                <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+                <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+                <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+                <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
               </svg>
               {loading ? 'Redirecting…' : 'Continue with Google'}
             </button>
           </div>
 
-          <button onClick={() => router.push('/')} style={{ marginTop: '1.25rem', background: 'none', border: 'none', color: 'rgba(240,237,232,0.3)', fontSize: 13, cursor: 'pointer' }}>
+          <button
+            onClick={() => router.push('/')}
+            style={{ marginTop: '1.25rem', background: 'none', border: 'none', color: '#6B7280', fontSize: 13, cursor: 'pointer', transition: 'color 300ms ease' }}
+            onMouseEnter={e => e.currentTarget.style.color = '#9AA3B2'}
+            onMouseLeave={e => e.currentTarget.style.color = '#6B7280'}
+          >
             ← Back
           </button>
         </div>

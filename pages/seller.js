@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef } from 'react';
-import Head from 'next/head';
 import { useRouter } from 'next/router';
 import supabase from '../lib/supabase';
 
@@ -8,6 +7,17 @@ const FIELD_LABELS = {
   bedrooms: 'Bedrooms', bathrooms: 'Bathrooms', floor: 'Floor',
   has_lift: 'Lift', parking: 'Parking', unique_features: 'Features',
   is_owner: 'Owner/Broker', contact_name: 'Contact Name', contact_phone: 'Phone',
+};
+
+const gradientText = {
+  background: 'linear-gradient(135deg, #2F6BFF, #7B3FF2)',
+  WebkitBackgroundClip: 'text',
+  WebkitTextFillColor: 'transparent',
+  backgroundClip: 'text',
+};
+
+const gradientBg = {
+  background: 'linear-gradient(135deg, #2F6BFF, #7B3FF2)',
 };
 
 export default function Seller() {
@@ -160,42 +170,46 @@ export default function Seller() {
   );
 
   if (!authChecked) return (
-    <div style={{ minHeight: '100vh', background: '#0D1B2A', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ color: 'rgba(240,237,232,0.4)', fontSize: 14, fontFamily: 'sans-serif' }}>Loading…</div>
+    <div style={{ minHeight: '100vh', background: '#0F1115', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div style={{ color: '#6B7280', fontSize: 14, fontFamily: "'Inter', sans-serif" }}>Loading…</div>
     </div>
   );
 
   return (
     <>
-      <Head>
-        <title>ConsultProp — Seller</title>
-        <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
-      </Head>
-      <div style={{ display: 'flex', height: '100vh', background: '#0D1B2A', fontFamily: "'DM Sans', sans-serif", overflow: 'hidden' }}>
+      <div style={{ display: 'flex', height: '100vh', background: '#0F1115', fontFamily: "'Inter', sans-serif", overflow: 'hidden' }}>
 
         {/* Sidebar */}
-        <div style={{ width: 260, background: '#0A1520', borderRight: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem', overflowY: 'auto' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: '2rem' }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#E8A020', color: '#0A1520', fontFamily: "'DM Serif Display', serif", fontSize: 20, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>C</div>
-            <span style={{ fontSize: 18, fontWeight: 500, color: '#F0EDE8', letterSpacing: '-0.02em' }}>ConsultProp</span>
+        <div style={{ width: 260, background: '#1A1D23', borderRight: '1px solid rgba(255,255,255,0.08)', display: 'flex', flexDirection: 'column', padding: '2rem 1.5rem', overflowY: 'auto' }}>
+
+          {/* Logo */}
+          <div style={{ display: 'flex', alignItems: 'baseline', gap: 0, marginBottom: '2rem' }}>
+            <span style={{ fontSize: 20, fontWeight: 600, color: '#E6EAF2', letterSpacing: '-0.03em' }}>consult</span>
+            <span style={{ fontSize: 20, fontWeight: 600, letterSpacing: '-0.03em', ...gradientText }}>prop</span>
+            <span style={{ fontSize: 20, fontWeight: 600, color: '#6B7280', letterSpacing: '-0.03em' }}>.ai</span>
           </div>
 
           {user && (
-            <div style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-              <div style={{ fontSize: 12, color: 'rgba(240,237,232,0.35)', marginBottom: 4 }}>Listing as</div>
-              <div style={{ fontSize: 13, color: '#F0EDE8', fontWeight: 500, marginBottom: '0.75rem' }}>{user.name || user.email}</div>
-              <button onClick={handleLogout} style={{ fontSize: 11, color: 'rgba(240,237,232,0.35)', background: 'none', border: 'none', cursor: 'pointer', padding: 0 }}>Sign out</button>
+            <div style={{ marginBottom: '1.5rem', paddingBottom: '1.5rem', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ fontSize: 11, color: '#6B7280', marginBottom: 4 }}>Listing as</div>
+              <div style={{ fontSize: 13, color: '#E6EAF2', fontWeight: 500, marginBottom: '0.75rem' }}>{user.name || user.email}</div>
+              <button
+                onClick={handleLogout}
+                style={{ fontSize: 11, color: '#6B7280', background: 'none', border: 'none', cursor: 'pointer', padding: 0, transition: 'color 300ms ease' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#9AA3B2'}
+                onMouseLeave={e => e.currentTarget.style.color = '#6B7280'}
+              >Sign out</button>
             </div>
           )}
 
-          {/* Property data sidebar */}
+          {/* Property data */}
           {dataEntries.length > 0 && (
-            <div>
-              <div style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(240,237,232,0.3)', marginBottom: '0.75rem' }}>Listing so far</div>
+            <div style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(20px)', WebkitBackdropFilter: 'blur(20px)', borderRadius: 16, padding: '1rem', marginBottom: '1rem' }}>
+              <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7280', marginBottom: '0.75rem' }}>Listing so far</div>
               {dataEntries.map(([k, v]) => (
                 <div key={k} style={{ marginBottom: '0.6rem' }}>
-                  <div style={{ fontSize: 10, color: 'rgba(240,237,232,0.3)', marginBottom: 1 }}>{FIELD_LABELS[k] || k}</div>
-                  <div style={{ fontSize: 12, color: '#E8A020', fontWeight: 500, wordBreak: 'break-word' }}>
+                  <div style={{ fontSize: 10, color: '#6B7280', marginBottom: 1 }}>{FIELD_LABELS[k] || k}</div>
+                  <div style={{ fontSize: 12, fontWeight: 500, wordBreak: 'break-word', ...gradientText }}>
                     {Array.isArray(v) ? v.join(', ') : typeof v === 'boolean' ? (v ? 'Yes' : 'No') : String(v)}
                   </div>
                 </div>
@@ -205,11 +219,11 @@ export default function Seller() {
 
           {/* Photos */}
           {photos.length > 0 && (
-            <div style={{ marginTop: '1.5rem', paddingTop: '1.5rem', borderTop: '1px solid rgba(255,255,255,0.06)' }}>
-              <div style={{ fontSize: 10, fontWeight: 500, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'rgba(240,237,232,0.3)', marginBottom: '0.75rem' }}>Photos ({photos.length})</div>
+            <div style={{ paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.08)' }}>
+              <div style={{ fontSize: 10, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: '#6B7280', marginBottom: '0.75rem' }}>Photos ({photos.length})</div>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
                 {photos.map((url, i) => (
-                  <img key={i} src={url} alt={`Photo ${i + 1}`} style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid rgba(255,255,255,0.1)' }} />
+                  <img key={i} src={url} alt={`Photo ${i + 1}`} style={{ width: 60, height: 60, objectFit: 'cover', borderRadius: 8, border: '1px solid rgba(255,255,255,0.18)' }} />
                 ))}
               </div>
             </div>
@@ -222,32 +236,45 @@ export default function Seller() {
             {messages.map((msg, i) => (
               <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12, maxWidth: 640, alignSelf: msg.role === 'assistant' ? 'flex-start' : 'flex-end', flexDirection: msg.role === 'assistant' ? 'row' : 'row-reverse' }}>
                 {msg.role === 'assistant' && (
-                  <div style={{ width: 32, height: 32, borderRadius: 9, background: '#E8A020', color: '#0A1520', fontFamily: "'DM Serif Display',serif", fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>C</div>
+                  <div style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#fff', ...gradientBg }}>C</div>
                 )}
-                <div style={{ padding: '0.75rem 1rem', borderRadius: 16, fontSize: 14, lineHeight: 1.65, maxWidth: 500, background: msg.role === 'assistant' ? 'rgba(255,255,255,0.06)' : '#E8A020', color: msg.role === 'assistant' ? '#F0EDE8' : '#0A1520', fontWeight: msg.role === 'user' ? 500 : 400, borderTopLeftRadius: msg.role === 'assistant' ? 4 : 16, borderTopRightRadius: msg.role === 'user' ? 4 : 16, whiteSpace: 'pre-wrap' }}>
+                <div style={{
+                  padding: '0.75rem 1rem', borderRadius: 16, fontSize: 14, lineHeight: 1.65, maxWidth: 500,
+                  background: msg.role === 'assistant' ? 'rgba(255,255,255,0.08)' : 'linear-gradient(135deg, #2F6BFF, #7B3FF2)',
+                  border: msg.role === 'assistant' ? '1px solid rgba(255,255,255,0.18)' : 'none',
+                  backdropFilter: msg.role === 'assistant' ? 'blur(20px)' : 'none',
+                  WebkitBackdropFilter: msg.role === 'assistant' ? 'blur(20px)' : 'none',
+                  color: '#E6EAF2',
+                  fontWeight: msg.role === 'user' ? 500 : 400,
+                  borderTopLeftRadius: msg.role === 'assistant' ? 4 : 16,
+                  borderTopRightRadius: msg.role === 'user' ? 4 : 16,
+                  whiteSpace: 'pre-wrap',
+                }}>
                   {msg.content}
                 </div>
               </div>
             ))}
             {(loading || uploading) && (
               <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                <div style={{ width: 32, height: 32, borderRadius: 9, background: '#E8A020', color: '#0A1520', fontFamily: "'DM Serif Display',serif", fontSize: 16, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>C</div>
-                <div style={{ padding: '0.85rem 1rem', borderRadius: 16, borderTopLeftRadius: 4, background: 'rgba(255,255,255,0.06)', display: 'flex', gap: 5, alignItems: 'center' }}>
-                  {[0, 1, 2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: 'rgba(240,237,232,0.4)', animation: `bounce 1.3s ${i * 0.2}s infinite` }} />)}
+                <div style={{ width: 32, height: 32, borderRadius: 9, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 700, color: '#fff', ...gradientBg }}>C</div>
+                <div style={{ padding: '0.85rem 1rem', borderRadius: 16, borderTopLeftRadius: 4, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', backdropFilter: 'blur(20px)', display: 'flex', gap: 5, alignItems: 'center' }}>
+                  {[0, 1, 2].map(i => <div key={i} style={{ width: 6, height: 6, borderRadius: '50%', background: '#9AA3B2', animation: `bounce 1.3s ${i * 0.2}s infinite` }} />)}
                 </div>
               </div>
             )}
             <div ref={chatEndRef} />
           </div>
 
-          <div style={{ padding: '1rem 2rem 0.75rem', display: 'flex', gap: 10, alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.06)', background: 'rgba(0,0,0,0.15)' }}>
-            {/* Photo upload button */}
+          {/* Input bar */}
+          <div style={{ padding: '1rem 2rem 0.75rem', display: 'flex', gap: 10, alignItems: 'flex-end', borderTop: '1px solid rgba(255,255,255,0.08)', background: 'rgba(26,29,35,0.8)' }}>
             <input ref={fileInputRef} type="file" accept="image/*" multiple onChange={handlePhotoUpload} style={{ display: 'none' }} />
             <button
               onClick={() => fileInputRef.current?.click()}
               disabled={uploading || loading}
               title="Upload photos"
-              style={{ width: 44, height: 44, borderRadius: 12, background: 'rgba(255,255,255,0.06)', color: 'rgba(240,237,232,0.5)', border: '1px solid rgba(255,255,255,0.1)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: uploading ? 0.4 : 1 }}
+              style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.08)', color: '#9AA3B2', border: '1px solid rgba(255,255,255,0.18)', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, opacity: uploading ? 0.4 : 1, transition: 'background 300ms ease, box-shadow 300ms ease, transform 300ms ease' }}
+              onMouseEnter={e => { if (!uploading && !loading) { e.currentTarget.style.background = 'rgba(255,255,255,0.14)'; e.currentTarget.style.boxShadow = '0 0 16px rgba(47,107,255,0.25)'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
+              onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,0.08)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
             >
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" strokeWidth="1.5"/><circle cx="7.5" cy="10.5" r="1.5" fill="currentColor"/><path d="M2 14l4-4 3 3 3-4 4 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/><path d="M7 5V3M10 5V2M13 5V3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></svg>
             </button>
@@ -257,21 +284,29 @@ export default function Seller() {
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } }}
+              onFocus={e => { e.currentTarget.style.borderColor = 'rgba(47,107,255,0.6)'; e.currentTarget.style.boxShadow = '0 0 0 3px rgba(47,107,255,0.15)'; }}
+              onBlur={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; e.currentTarget.style.boxShadow = 'none'; }}
               placeholder="Describe your property..."
               disabled={loading || uploading}
               rows={1}
-              style={{ flex: 1, background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: 12, padding: '0.75rem 1rem', fontSize: 14, fontFamily: "'DM Sans',sans-serif", color: '#F0EDE8', resize: 'none', outline: 'none', lineHeight: 1.5 }}
+              style={{ flex: 1, background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.18)', borderRadius: 50, padding: '0.75rem 1.25rem', fontSize: 14, fontFamily: "'Inter', sans-serif", color: '#E6EAF2', resize: 'none', outline: 'none', lineHeight: 1.5, transition: 'border-color 300ms ease, box-shadow 300ms ease' }}
             />
-            <button onClick={sendMessage} disabled={loading || uploading || !input.trim()} style={{ width: 44, height: 44, borderRadius: 12, background: '#E8A020', color: '#0A1520', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', opacity: loading || uploading || !input.trim() ? 0.3 : 1 }}>
+            <button
+              onClick={sendMessage}
+              disabled={loading || uploading || !input.trim()}
+              style={{ width: 44, height: 44, borderRadius: '50%', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', opacity: loading || uploading || !input.trim() ? 0.35 : 1, transition: 'opacity 300ms ease, box-shadow 300ms ease, transform 300ms ease', flexShrink: 0, ...gradientBg }}
+              onMouseEnter={e => { if (!e.currentTarget.disabled) { e.currentTarget.style.boxShadow = '0 0 20px rgba(47,107,255,0.5)'; e.currentTarget.style.transform = 'translateY(-1px)'; } }}
+              onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.transform = 'translateY(0)'; }}
+            >
               <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10H16M16 10L11 5M16 10L11 15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </button>
           </div>
-          <p style={{ textAlign: 'center', fontSize: 11, color: 'rgba(240,237,232,0.2)', padding: '0.4rem 2rem 0.75rem' }}>
+          <p style={{ textAlign: 'center', fontSize: 11, color: '#6B7280', padding: '0.4rem 2rem 0.75rem' }}>
             Your listing details are saved automatically as you chat.
           </p>
         </div>
       </div>
-      <style>{`@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:0.4}40%{transform:translateY(-5px);opacity:1}}*{box-sizing:border-box;margin:0;padding:0}body{overflow:hidden}`}</style>
+      <style>{`@keyframes bounce{0%,80%,100%{transform:translateY(0);opacity:0.4}40%{transform:translateY(-5px);opacity:1}}*{box-sizing:border-box;margin:0;padding:0}body{overflow:hidden}textarea::placeholder{color:#6B7280}`}</style>
     </>
   );
 }
