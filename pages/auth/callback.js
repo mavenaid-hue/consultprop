@@ -1,78 +1,90 @@
-import { useEffect, useState } from 'react'
-import { useRouter } from 'next/router'
-import supabase from '../../lib/supabase'
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/router';
+import supabase from '../../lib/supabase';
+import { normalizeRole, persistRoleMetadata, syncProfile } from '../../lib/auth-profile';
+import LoadingScreen from '@/components/LoadingScreen';
 
 export default function AuthCallback() {
-  const router = useRouter()
-  const [status, setStatus] = useState('Completing sign in...')
+  const router = useRouter();
+  const [status, setStatus] = useState('Completing sign in...');
 
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const { data: { session }, error } = await supabase.auth.getSession()
+        const searchParams = new URLSearchParams(window.location.search);
+        const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+        const role = normalizeRole(localStorage.getItem('consultprop_role') || 'buyer');
+        const authCode = searchParams.get('code');
+        const errorDescription =
+          searchParams.get('error_description') ||
+          searchParams.get('error') ||
+          hashParams.get('error_description') ||
+          hashParams.get('error');
 
-        if (session) {
-          const role = localStorage.getItem('consultprop_role') || 'buyer'
-
-          await supabase.from('profiles').upsert({
-            id: session.user.id,
-            email: session.user.email,
-            name: session.user.user_metadata?.full_name || '',
-            role: role
-          })
-
-          router.push(role === 'seller' ? '/seller' : '/buyer')
-          return
+        if (errorDescription) {
+          throw new Error(errorDescription);
         }
 
-        const hashParams = new URLSearchParams(window.location.hash.replace('#', ''))
-        const accessToken = hashParams.get('access_token')
-        const refreshToken = hashParams.get('refresh_token')
+        if (authCode) {
+          setStatus('Finishing secure sign in...');
 
-        if (accessToken) {
-          const { data, error } = await supabase.auth.setSession({
-            access_token: accessToken,
-            refresh_token: refreshToken
-          })
+          const { data, error } = await supabase.auth.exchangeCodeForSession(authCode);
+          if (error) throw error;
 
           if (data.session) {
-            const role = localStorage.getItem('consultprop_role') || 'buyer'
-            await supabase.from('profiles').upsert({
-              id: data.session.user.id,
-              email: data.session.user.email,
-              name: data.session.user.user_metadata?.full_name || '',
-              role: role
-            })
-            router.push(role === 'seller' ? '/seller' : '/buyer')
-            return
+            await persistRoleMetadata(supabase, data.session.user, role);
+            await syncProfile(supabase, data.session.user, role);
+
+            localStorage.removeItem('consultprop_role');
+            router.replace(role === 'seller' ? '/seller' : '/buyer');
+            return;
           }
         }
 
-        setStatus('Sign in failed. Redirecting...')
-        setTimeout(() => router.push('/'), 2000)
+        const {
+          data: { session },
+        } = await supabase.auth.getSession();
 
+        if (session) {
+          await persistRoleMetadata(supabase, session.user, role);
+          await syncProfile(supabase, session.user, role);
+
+          localStorage.removeItem('consultprop_role');
+          router.replace(role === 'seller' ? '/seller' : '/buyer');
+          return;
+        }
+        const accessToken = hashParams.get('access_token');
+        const refreshToken = hashParams.get('refresh_token');
+
+        if (accessToken && refreshToken) {
+          setStatus('Restoring your session...');
+
+          const { data, error } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken,
+          });
+          if (error) throw error;
+
+          if (data.session) {
+            await persistRoleMetadata(supabase, data.session.user, role);
+            await syncProfile(supabase, data.session.user, role);
+
+            localStorage.removeItem('consultprop_role');
+            router.replace(role === 'seller' ? '/seller' : '/buyer');
+            return;
+          }
+        }
+
+        setStatus('Sign in failed. Redirecting...');
+        setTimeout(() => router.push('/'), 2000);
       } catch (err) {
-        console.error('Callback error:', err)
-        setStatus('Something went wrong. Redirecting...')
-        setTimeout(() => router.push('/'), 2000)
+        console.error('Callback error:', err);
+        setStatus(`Sign in failed: ${err.message || 'Something went wrong.'}`);
       }
-    }
+    };
 
-    handleCallback()
-  }, [])
+    handleCallback();
+  }, []);
 
-  return (
-    <div style={{
-      height: '100vh',
-      background: '#0F1115',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      fontFamily: 'Inter, sans-serif',
-      color: '#E6EAF2',
-      fontSize: '16px'
-    }}>
-      {status}
-    </div>
-  )
+  return <LoadingScreen message={status} />;
 }

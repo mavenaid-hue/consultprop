@@ -1,79 +1,150 @@
 import { useRouter } from 'next/router';
+import BrandMark from '@/components/BrandMark';
+import RoleGlyph from '@/components/RoleGlyph';
+import styles from '@/styles/Home.module.css';
 
-const gradientText = {
-  background: 'linear-gradient(135deg, #2F6BFF, #7B3FF2)',
-  WebkitBackgroundClip: 'text',
-  WebkitTextFillColor: 'transparent',
-  backgroundClip: 'text',
-};
+const roleCards = [
+  {
+    role: 'buyer',
+    title: 'I want to buy',
+    body: 'Get calm, unbiased property guidance tailored to your goals, budget, and timeline.',
+    meta: 'Advisory mode',
+    href: '/login?role=buyer',
+  },
+  {
+    role: 'seller',
+    title: 'I want to sell',
+    body: 'Launch a polished listing flow through one guided conversation and structured follow-up.',
+    meta: 'Listing mode',
+    href: '/login?role=seller',
+  },
+];
 
-const glassCard = {
-  background: 'rgba(255,255,255,0.08)',
-  border: '1px solid rgba(255,255,255,0.18)',
-  backdropFilter: 'blur(20px)',
-  WebkitBackdropFilter: 'blur(20px)',
-  borderRadius: 16,
-};
+const promises = [
+  'No commission to protect',
+  'No listings to push',
+  'No pressure to close',
+  'Just clear property advice',
+];
+
+const metrics = [
+  { value: '24/7', label: 'Strategic guidance on demand' },
+  { value: 'Zero', label: 'Commission-driven incentives' },
+  { value: '1', label: 'Streamlined AI conversation flow' },
+];
 
 export default function Home() {
   const router = useRouter();
 
   return (
-    <>
-      <div style={{ minHeight: '100vh', background: '#0F1115', fontFamily: "'Inter', sans-serif", display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-
-        {/* Logo */}
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 0, marginBottom: '0.5rem' }}>
-          <span style={{ fontSize: 30, fontWeight: 600, color: '#E6EAF2', letterSpacing: '-0.03em' }}>consult</span>
-          <span style={{ fontSize: 30, fontWeight: 600, letterSpacing: '-0.03em', ...gradientText }}>prop</span>
-          <span style={{ fontSize: 30, fontWeight: 600, color: '#6B7280', letterSpacing: '-0.03em' }}>.ai</span>
-        </div>
-
-        {/* Hero */}
-        <h1 style={{ fontSize: 42, fontWeight: 600, color: '#E6EAF2', letterSpacing: '-0.03em', textAlign: 'center', marginBottom: '0.6rem', lineHeight: 1.2 }}>
-          Find your home.{' '}
-          <span style={gradientText}>Smarter.</span>
-        </h1>
-        <p style={{ fontSize: 16, color: '#9AA3B2', marginBottom: '3rem', textAlign: 'center' }}>
-          Your own AI property guide
-        </p>
-
-        {/* Two glass cards */}
-        <div style={{ display: 'flex', gap: '1.25rem', marginBottom: '3rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          <button
-            onClick={() => router.push('/login?role=buyer')}
-            style={{ width: 240, padding: '2rem 1.5rem', ...glassCard, cursor: 'pointer', textAlign: 'left', transition: 'transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease' }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(47,107,255,0.2)'; e.currentTarget.style.borderColor = 'rgba(47,107,255,0.5)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
-          >
-            <div style={{ fontSize: 28, marginBottom: '0.75rem' }}>🏠</div>
-            <div style={{ fontSize: 17, fontWeight: 600, color: '#E6EAF2', marginBottom: '0.5rem' }}>I want to buy</div>
-            <div style={{ fontSize: 13, color: '#9AA3B2', lineHeight: 1.6 }}>Get honest advice tailored to your needs — no pressure, no commission.</div>
-          </button>
-
-          <button
-            onClick={() => router.push('/login?role=seller')}
-            style={{ width: 240, padding: '2rem 1.5rem', ...glassCard, cursor: 'pointer', textAlign: 'left', transition: 'transform 300ms ease, box-shadow 300ms ease, border-color 300ms ease' }}
-            onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(123,63,242,0.2)'; e.currentTarget.style.borderColor = 'rgba(123,63,242,0.5)'; }}
-            onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; e.currentTarget.style.borderColor = 'rgba(255,255,255,0.18)'; }}
-          >
-            <div style={{ fontSize: 28, marginBottom: '0.75rem' }}>📋</div>
-            <div style={{ fontSize: 17, fontWeight: 600, color: '#E6EAF2', marginBottom: '0.5rem' }}>I want to sell</div>
-            <div style={{ fontSize: 13, color: '#9AA3B2', lineHeight: 1.6 }}>List your property through a quick conversation — we extract everything we need.</div>
-          </button>
-        </div>
-
-        {/* Four promises */}
-        <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
-          {['No commission to earn', 'No listings to push', 'No pressure to close', 'Just honest advice'].map(t => (
-            <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12, color: '#6B7280' }}>
-              <div style={{ width: 5, height: 5, borderRadius: '50%', background: 'linear-gradient(135deg, #2F6BFF, #7B3FF2)', flexShrink: 0 }} />
-              {t}
+    <main className={`cp-page ${styles.page}`}>
+      <div className={`cp-shell ${styles.frame}`}>
+        <section className={`cp-glass cp-panel ${styles.heroPanel}`}>
+          <div className={styles.brandRow}>
+            <BrandMark size="lg" />
+            <div className="cp-chip">
+              <span className="cp-chipDot" />
+              Premium PropTech advisory
             </div>
-          ))}
-        </div>
+          </div>
+
+          <div className={styles.heroBody}>
+            <div className="cp-kicker">Glassmorphism workspace for modern property decisions</div>
+            <h1 className={`cp-heading ${styles.headline}`}>
+              Find, assess, and launch property moves with{' '}
+              <span className={`cp-gradientText ${styles.headlineAccent}`}>signal over noise.</span>
+            </h1>
+            <p className={`cp-body ${styles.lead}`}>
+              ConsultProp pairs a refined client experience with a structured AI flow so buyers get honest advice and
+              sellers list faster without losing clarity.
+            </p>
+          </div>
+
+          <div className={styles.metrics}>
+            {metrics.map((item) => (
+              <div key={item.label} className={styles.metricCard}>
+                <span className={styles.metricValue}>{item.value}</span>
+                <span className={styles.metricLabel}>{item.label}</span>
+              </div>
+            ))}
+          </div>
+
+          <div className={styles.dashboardCard}>
+            <div>
+              <p className="cp-kicker">What feels premium here</p>
+              <h2 className={styles.dashboardTitle}>A calmer front door for a high-stakes decision.</h2>
+              <p className={styles.dashboardBody}>
+                The experience is tuned for trust: soft glass layers, clear next steps, and an interface that feels
+                more like a private deal room than a generic chatbot.
+              </p>
+            </div>
+
+            <div className={styles.dashboardStats}>
+              <div className={styles.dashboardStat}>
+                <strong>Buyer</strong>
+                <span>Needs capture, guidance, and decision support</span>
+              </div>
+              <div className={styles.dashboardStat}>
+                <strong>Seller</strong>
+                <span>Structured listing intake with media-ready details</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section className={`cp-glass cp-panel ${styles.selectionPanel}`}>
+          <div className={styles.selectionHeader}>
+            <div className="cp-chip">
+              <span className="cp-chipDot" />
+              Choose your path
+            </div>
+            <h2 className={`cp-heading ${styles.selectionTitle}`}>Step into a workspace built for your role.</h2>
+            <p className="cp-body">
+              Same intelligence, different flow. Pick the experience that matches what you are trying to do today.
+            </p>
+          </div>
+
+          <div className={styles.roleGrid}>
+            {roleCards.map((card) => (
+              <button
+                key={card.role}
+                type="button"
+                className={`cp-button cp-buttonGhost ${styles.roleCard}`}
+                onClick={() => router.push(card.href)}
+              >
+                <div className={styles.roleTop}>
+                  <span className={styles.roleIconWrap}>
+                    <RoleGlyph role={card.role} />
+                  </span>
+                  <svg className={styles.roleArrow} width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path
+                      d="M4.5 10h11M15.5 10 11 5.5M15.5 10 11 14.5"
+                      stroke="currentColor"
+                      strokeWidth="1.7"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                </div>
+                <div className={styles.roleTitle}>{card.title}</div>
+                <div className={styles.roleBody}>{card.body}</div>
+                <div className={styles.roleMeta}>{card.meta}</div>
+              </button>
+            ))}
+          </div>
+
+          <div className={styles.promiseStrip}>
+            {promises.map((promise) => (
+              <div key={promise} className={styles.promiseItem}>
+                <span />
+                {promise}
+              </div>
+            ))}
+          </div>
+
+          <p className={styles.microcopy}>Designed to feel expensive, deliberate, and trustworthy without adding friction.</p>
+        </section>
       </div>
-      <style>{`* { box-sizing: border-box; margin: 0; padding: 0; } body { overflow-x: hidden; }`}</style>
-    </>
+    </main>
   );
 }

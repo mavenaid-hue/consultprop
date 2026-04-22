@@ -1,0 +1,263 @@
+.page {
+  padding: 18px 0;
+}
+
+.shell {
+  min-height: calc(100vh - 36px);
+  display: grid;
+  grid-template-columns: minmax(280px, 340px) minmax(0, 1fr);
+  gap: 18px;
+}
+
+.sidebar,
+.main {
+  min-height: 0;
+}
+
+.sidebar {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.sidebarTop {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.userCard {
+  padding: 18px;
+  border-radius: var(--cp-radius-md);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(182, 219, 255, 0.1);
+}
+
+.userMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.userMetaLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--cp-text-muted);
+}
+
+.userMetaValue {
+  color: var(--cp-text);
+  font-weight: 700;
+  word-break: break-word;
+}
+
+.logoutButton {
+  margin-top: 14px;
+  width: 100%;
+}
+
+.sidebarCard {
+  padding: 18px;
+  border-radius: var(--cp-radius-md);
+}
+
+.sectionLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--cp-highlight);
+  font-weight: 700;
+}
+
+.sectionBody {
+  margin-top: 14px;
+}
+
+.promiseList,
+.summaryList {
+  display: grid;
+  gap: 12px;
+}
+
+.promiseItem,
+.summaryItem {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.promiseDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  margin-top: 7px;
+  background: linear-gradient(135deg, var(--cp-accent), var(--cp-accent-secondary));
+}
+
+.promiseText {
+  color: var(--cp-text-soft);
+  line-height: 1.7;
+  font-size: 14px;
+}
+
+.summaryKey {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--cp-text-muted);
+}
+
+.summaryValue {
+  margin-top: 4px;
+  color: var(--cp-text);
+  font-weight: 700;
+  line-height: 1.55;
+  word-break: break-word;
+}
+
+.photosGrid {
+  margin-top: 14px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.photoThumb {
+  aspect-ratio: 1;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid rgba(182, 219, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.photoThumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.sidebarFooter {
+  margin-top: auto;
+}
+
+.main {
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr) auto auto;
+  overflow: hidden;
+}
+
+.mainHeader {
+  padding: 24px 28px 10px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.mainHeaderCopy {
+  max-width: 760px;
+}
+
+.mainTitle {
+  margin-top: 10px;
+  font-size: clamp(2rem, 4vw, 2.8rem);
+}
+
+.mainText {
+  margin-top: 10px;
+  max-width: 620px;
+}
+
+.headerMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.chatFeed {
+  overflow-y: auto;
+  padding: 8px 28px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chatFeedInner {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.composer {
+  padding: 16px 28px 14px;
+  border-top: 1px solid rgba(182, 219, 255, 0.1);
+  background: linear-gradient(180deg, rgba(7, 17, 31, 0.72), rgba(7, 17, 31, 0.84));
+}
+
+.composerInner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-end;
+}
+
+.composerField {
+  flex: 1;
+}
+
+.footerNote {
+  padding: 0 28px 20px;
+  text-align: center;
+  color: var(--cp-text-muted);
+  font-size: 12px;
+}
+
+@media (max-width: 1024px) {
+  .shell {
+    grid-template-columns: 1fr;
+    min-height: auto;
+  }
+
+  .sidebar {
+    order: 2;
+  }
+
+  .main {
+    order: 1;
+    min-height: 70vh;
+  }
+}
+
+@media (max-width: 720px) {
+  .page {
+    padding: 10px 0;
+  }
+
+  .sidebar,
+  .mainHeader,
+  .chatFeed,
+  .composer,
+  .footerNote {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .mainHeader {
+    flex-direction: column;
+  }
+
+  .headerMeta {
+    justify-content: flex-start;
+  }
+
+  .photosGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .composerInner {
+    gap: 10px;
+  }
+}
